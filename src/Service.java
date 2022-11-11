@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 public class Service {
@@ -12,9 +15,8 @@ public class Service {
             System.out.println("3 :Search");
             System.out.println("4 :Update");
             System.out.println("5 :Delete");
-
-            System.out.println("6 :exit");
-
+            System.out.println("6 :bill");
+            System.out.println("7 :exit");
             choice = sc.nextInt();
 
             switch (choice){
@@ -168,7 +170,6 @@ public class Service {
 
                 case 4:
                     System.out.println("Update");
-
                     System.out.println("Add customer details...");
                     System.out.println("Enter the customer code");
                     code=sc.nextInt();
@@ -197,7 +198,6 @@ public class Service {
                 case 5:
                     System.out.println("Delete the consumer");
                     System.out.println("enter the code");
-
                     code = sc.nextInt();
                     try{
                         Class.forName("com.mysql.jdbc.Driver");
@@ -206,17 +206,63 @@ public class Service {
                         Statement stmt = con.createStatement();
                         stmt.executeUpdate(sql);
                         System.out.println("deleted successfully");
-
                     }
                     catch (Exception e){
                         System.out.println(e);
                     }
                     break;
-
-
-
-
                 case 6:
+                    System.out.println("Generate Bill");
+//getting current month and year
+                    GregorianCalendar date = new GregorianCalendar();
+                    int currentMonth = date.get(Calendar.MONTH);
+                    int currentYear = date.get(Calendar.YEAR);
+                    currentMonth = currentMonth+1;
+                    try {
+                        //
+                        Class.forName("com.mysql.jdbc.Driver");
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/admindb", "root", "");
+                        String sql = "DELETE FROM `bill` WHERE `month`= '" + currentMonth + "'AND `year`= '" + currentYear + "'";
+                        Statement stmt = con.createStatement();
+                        stmt.executeUpdate(sql);
+                        System.out.println("Previous data deleted succesfully");
+                        String sql1 = "SELECT `id` FROM `consumer` ";
+                        Statement stmt1 = con.createStatement();
+                        ResultSet rs = stmt1.executeQuery(sql1);
+                        while (rs.next()) {
+                            int id = rs.getInt("id");
+                            String sql2 = "select SUM(`unit`) from usages where month(datetime) = '"+currentMonth+"' AND year(datetime) = '"+currentYear+"' AND `userid` ='"+id+"'";
+                            Statement stmt2 = con.createStatement();
+                            ResultSet rs1 = stmt2.executeQuery(sql2);
+                            while (rs1.next()) {
+                                int add = rs1.getInt("SUM(`Unit`)");
+                                int status = 0;
+                                int totalBill = add * 5;
+                                //generating random number for invoice
+                                int min = 10000;
+                                int max = 99999;
+                                int invoice = (int)(Math.random() * (max - min + 1) + min);
+                                // String sql3 = "INSERT INTO `bill`(`User_Id`, `month`, `year`, `bill`, `paid status`, `bill date`, `total_unit`) VALUES (%s,%s,%s,%s,%s,now(),%s)";
+                                String sql3 = "INSERT INTO `bill`(`userid`, `month`, `year`, `bill`, `paidstatus`, `billdate`, `totalunit`) VALUES (?,?,?,?,?,now(),?)";
+                                PreparedStatement stmt3 = con.prepareStatement(sql3);
+                                stmt3.setInt(1, id);
+                                stmt3.setInt(2, currentMonth);
+                                stmt3.setInt(3, currentYear);
+                                stmt3.setInt(4, totalBill);
+                                stmt3.setInt(5, 0);
+                                stmt3.setInt(6, add);
+
+                                stmt3.executeUpdate();
+                            }
+                        }
+
+                    }
+                    catch(Exception e){
+                        System.out.println(e);
+                    }
+
+
+                case 7:
                     System.exit(0);
             }
         }
