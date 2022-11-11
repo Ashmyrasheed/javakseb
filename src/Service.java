@@ -16,7 +16,8 @@ public class Service {
             System.out.println("4 :Update");
             System.out.println("5 :Delete");
             System.out.println("6 :bill");
-            System.out.println("7 :exit");
+            System.out.println(("7:view bill"));
+            System.out.println("9 :exit");
             choice = sc.nextInt();
 
             switch (choice){
@@ -260,9 +261,43 @@ public class Service {
                     catch(Exception e){
                         System.out.println(e);
                     }
-
-
                 case 7:
+                    try{
+                        Class.forName("com.mysql.jdbc.Driver");
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/admindb", "root", "");
+                        String sql = "SELECT  c.name,c.address,b.`month`, b.`year`, b.`bill`, b.`paidstatus`, b.`billdate`,  b.`totalunit` FROM `bill` b JOIN consumer c ON b.userid=c.id";
+                        Statement stmt = con.createStatement();
+                        ResultSet rs = stmt.executeQuery(sql);
+                        while(rs.next()){
+                            name = rs.getString("c.name");
+                            address = rs.getString("c.address");
+                            int month1 = rs.getInt("b.month");
+                            int year1 = rs.getInt("b.year");
+                            int bill = rs.getInt("b.bill");
+                            String sta = rs.getString("b.paidstatus");
+                            String date1 = rs.getString("b.billdate");
+                            int total = rs.getInt("b.totalunit");
+
+                            System.out.println("name ="+name);
+                            System.out.println("address ="+address);
+                            System.out.println("month ="+month1);
+                            System.out.println("year = "+year1);
+                            System.out.println("total bill = "+bill);
+                            System.out.println("status="+sta);
+                            System.out.println("bill date="+date1);
+
+                            System.out.println("total unit ="+total);
+
+                        }
+                    }
+                    catch (Exception e){
+                        System.out.println(e);
+                    }
+                    break;
+
+
+
+                case 9:
                     System.exit(0);
             }
         }
