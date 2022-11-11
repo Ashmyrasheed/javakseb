@@ -91,7 +91,7 @@ public class Service {
 
                     break;
                 case 5:
-                    System.out.println("Delete");
+                    System.out.println("Delete the consumer");
                     System.out.println("enter the code");
 
                     code = sc.nextInt();
