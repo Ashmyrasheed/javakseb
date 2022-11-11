@@ -17,6 +17,7 @@ public class Service {
             System.out.println("5 :Delete");
             System.out.println("6 :bill");
             System.out.println(("7:view bill"));
+            System.out.println(("8:high 2 bills"));
             System.out.println("9 :exit");
             choice = sc.nextInt();
 
@@ -294,8 +295,28 @@ public class Service {
                         System.out.println(e);
                     }
                     break;
-
-
+                case 8:
+                    try{
+                        Class.forName("com.mysql.jdbc.Driver");
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/admindb", "root", "");
+                        String sql = "SELECT c.name,c.address,b.`bill`, b.`totalunit` FROM `bill` b JOIN consumer c ON b.userid=c.id ORDER BY b.`bill`DESC LIMIT 2";
+                        Statement stmt = con.createStatement();
+                        ResultSet rs = stmt.executeQuery(sql);
+                        while(rs.next()){
+                            name = rs.getString("c.name");
+                            address = rs.getString("c.address");
+                            int bill = rs.getInt("b.bill");
+                            int total = rs.getInt("totalunit");
+                            System.out.println("name ="+name);
+                            System.out.println("address ="+address);
+                            System.out.println("total bill = "+bill);
+                            System.out.println("total unit ="+total+'\n');
+                        }
+                    }
+                    catch (Exception e){
+                        System.out.println(e);
+                    }
+                    break;
 
                 case 9:
                     System.exit(0);
